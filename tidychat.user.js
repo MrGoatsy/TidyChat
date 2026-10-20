@@ -21,7 +21,7 @@
 
   const DEFAULTS = {
     chatSelector: '#chatroom-messages',
-    pauseOnHover: true,
+    pauseOnHover: false,
     pauseKey: 'Control',
     maxHeld: 500,
     keepOnClear: true,
@@ -161,8 +161,10 @@
     #kct-dialog input[type=checkbox]::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:0;background:#fff;transition:transform .15s}
     #kct-dialog input[type=checkbox]:checked{background:#53fc18}
     #kct-dialog input[type=checkbox]:checked::after{transform:translateX(16px)}
-    #kct-dialog select,#kct-dialog input[type=text],#kct-dialog input[type=number],#kct-dialog textarea{box-sizing:border-box;width:100%;margin-top:8px;padding:7px 9px;border:1px solid #3d4247;border-radius:0;background:#0f1113;color:#e8eaed;font:13px/1.4 ui-monospace,monospace}
+    #kct-dialog select,#kct-dialog input[type=text],#kct-dialog input[type=search],#kct-dialog input[type=number],#kct-dialog textarea{box-sizing:border-box;width:100%;margin-top:8px;padding:7px 9px;border:1px solid #3d4247;border-radius:0;background:#0f1113;color:#e8eaed;font:13px/1.4 ui-monospace,monospace}
     #kct-dialog textarea{min-height:76px;resize:vertical}
+    #kct-dialog input.kct-search{margin:0 0 8px;font:13px/1.4 system-ui,sans-serif;-webkit-appearance:none;appearance:none}
+    #kct-dialog .kct-empty{padding:12px 0;color:#9aa0a6}
     #kct-dialog select:focus,#kct-dialog input:focus,#kct-dialog textarea:focus{outline:none;border-color:#53fc18}
     #kct-dialog footer{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-top:1px solid #2f3337;color:#9aa0a6;font-size:12.5px}
   `;
@@ -921,15 +923,41 @@
     if (backdrop) return closeSettings();
     const section = h('section');
     const navButtons = [];
+    let current = 0;
+    const search = h('input', {
+      type: 'search',
+      className: 'kct-search',
+      placeholder: 'Search settings',
+      spellcheck: false,
+      oninput: () => render()
+    });
+    const render = () => {
+      const terms = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+      navButtons.forEach((b, j) => b.classList.toggle('kct-active', !terms.length && j === current));
+      if (!terms.length) {
+        section.replaceChildren(h('h2', {}, CATEGORIES[current].label), ...CATEGORIES[current].items.map(field));
+        return;
+      }
+      const groups = CATEGORIES
+        .map(c => [c, c.items.filter(it => {
+          const hay = `${c.label} ${it.label} ${it.desc ?? ''}`.toLowerCase();
+          return terms.every(t => hay.includes(t));
+        })])
+        .filter(([, items]) => items.length);
+      section.replaceChildren(...(groups.length
+        ? groups.flatMap(([c, items]) => [h('h2', {}, c.label), ...items.map(field)])
+        : [h('div', { className: 'kct-empty' }, 'No settings match your search.')]));
+    };
     const show = i => {
-      navButtons.forEach((b, j) => b.classList.toggle('kct-active', i === j));
-      section.replaceChildren(h('h2', {}, CATEGORIES[i].label), ...CATEGORIES[i].items.map(field));
+      current = i;
+      search.value = '';
+      render();
       section.scrollTop = 0;
     };
     CATEGORIES.forEach((c, i) => navButtons.push(h('button', { type: 'button', onclick: () => show(i) }, c.label)));
     const dialog = h('div', { id: 'kct-dialog' },
       h('header', {}, 'TidyChat', h('button', { type: 'button', onclick: closeSettings }, 'Close')),
-      h('div', { className: 'kct-body' }, h('nav', {}, ...navButtons), section),
+      h('div', { className: 'kct-body' }, h('nav', {}, search, ...navButtons), section),
       h('footer', {}, 'Changes apply and save immediately.', h('button', {
         type: 'button',
         onclick: () => {
@@ -947,12 +975,20 @@
     }, h('div', { id: 'kct-shot' }, dialog));
     for (const type of ['keydown', 'keyup', 'keypress']) {
       backdrop.addEventListener(type, e => {
-        if (type === 'keydown' && e.key === 'Escape') closeSettings();
+        if (type === 'keydown' && e.key === 'Escape') {
+          if (e.target === search && search.value) {
+            search.value = '';
+            render();
+          } else {
+            closeSettings();
+          }
+        }
         e.stopPropagation();
       });
     }
     document.body.appendChild(backdrop);
     show(0);
+    search.focus();
   }
 
   /**
