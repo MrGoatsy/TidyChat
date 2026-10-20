@@ -2,7 +2,9 @@
 
 Makes Kick chat calmer and easier to read: pause it while you read, see deleted messages, and hide the gift and sub spam.
 
-<img width="500" height="381" alt="image" src="https://github.com/user-attachments/assets/4b19b2cd-a6db-435d-bfff-9304b7b6b78a" />
+<p align="center">
+  <img width="500" height="381" alt="image" src="https://github.com/user-attachments/assets/4b19b2cd-a6db-435d-bfff-9304b7b6b78a" />
+</p>
 
 
 ## Install
