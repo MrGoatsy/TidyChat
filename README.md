@@ -92,6 +92,10 @@ Run `tidyDebug()` in the browser console on a channel page to see how many chat 
 - If something breaks after a Kick update, open an issue with the outer HTML of the broken element.
 - Not affiliated with Kick.
 
+## Also by the author
+
+[Poltergeist](https://poltergeist.cc/) gives your moderators live control of your stream overlay, with no shared passwords or remote access to your PC.
+
 ## Credits
 
 Settings icon from [Material Icons](https://github.com/google/material-design-icons) by Google, [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
