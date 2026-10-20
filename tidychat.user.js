@@ -1019,7 +1019,7 @@
     const dialog = h('div', { id: 'kct-dialog' },
       h('header', {}, h('span', {}, 'TidyChat'), search, h('button', { type: 'button', onclick: closeSettings }, 'Close')),
       h('div', { className: 'kct-body' }, h('nav', {}, ...navButtons), section),
-      h('footer', {}, 'Changes apply and save immediately.', h('button', {
+      h('footer', {}, 'Changes apply and save automatically.', h('button', {
         type: 'button',
         onclick: () => {
           if (!confirm('Reset all TidyChat settings to their defaults?')) return;
