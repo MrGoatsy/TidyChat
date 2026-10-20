@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TidyChat
 // @namespace    tidychat
-// @version      1.2.5
+// @version      1.2.0
 // @description  Calmer Kick chat: pause on hover, keep deleted messages, ignore clears, hide sub and gift spam, timestamps
 // @license      MIT
 // @homepageURL  https://github.com/MrGoatsy/TidyChat
@@ -31,6 +31,7 @@
     timestamp24h: true,
     timestampSeconds: false,
     showButton: true,
+    shortcut: 'Shift+O',
     hideRewards: true,
     hideGetKicks: true,
     hideChannelPoints: true,
@@ -76,7 +77,8 @@
         { key: 'timestamps', type: 'bool', label: 'Show timestamps' },
         { key: 'timestamp24h', type: 'bool', label: '24-hour time' },
         { key: 'timestampSeconds', type: 'bool', label: 'Show seconds' },
-        { key: 'showButton', type: 'bool', label: 'Show settings button', desc: 'Shown in the top bar, or over chat when the top bar is hidden. Alt+O always opens this dialog.' }
+        { key: 'showButton', type: 'bool', label: 'Show settings button', desc: 'Shown in the top bar, or over chat when the top bar is hidden.' },
+        { key: 'shortcut', type: 'hotkey', label: 'Settings shortcut', desc: 'Click the box and press a key combination. Ignored while typing in chat. Backspace clears it.' }
       ]
     },
     {
@@ -128,6 +130,7 @@
   const KICKS_ROW = '[data-ds-icon^="Kicks"], img[src*="/kicks/"]';
   const GIFT_TEXT = /\bgift(ed|s)?\b/;
   const SUB_TEXT = /\b(re)?subscribed\b/;
+  const EDITABLE = 'input, textarea, select, [contenteditable=""], [contenteditable="true"]';
   const GEAR = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path fill-rule="evenodd" d="M19.38 10.17L22.36 10.28L22.36 13.72L19.38 13.83L18.51 15.92L20.54 18.1L18.1 20.54L15.92 18.51L13.83 19.38L13.72 22.36L10.28 22.36L10.17 19.38L8.08 18.51L5.9 20.54L3.46 18.1L5.49 15.92L4.62 13.83L1.64 13.72L1.64 10.28L4.62 10.17L5.49 8.08L3.46 5.9L5.9 3.46L8.08 5.49L10.17 4.62L10.28 1.64L13.72 1.64L13.83 4.62L15.92 5.49L18.1 3.46L20.54 5.9L18.51 8.08Z M15.4 12A3.4 3.4 0 1 0 8.6 12A3.4 3.4 0 1 0 15.4 12Z"/></svg>';
 
   const STYLE = `
@@ -162,8 +165,9 @@
     #kct-dialog input[type=checkbox]::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:0;background:#fff;transition:transform .15s}
     #kct-dialog input[type=checkbox]:checked{background:#53fc18}
     #kct-dialog input[type=checkbox]:checked::after{transform:translateX(16px)}
-    #kct-dialog select,#kct-dialog input[type=text],#kct-dialog input[type=search],#kct-dialog input[type=number],#kct-dialog textarea{box-sizing:border-box;width:100%;margin-top:8px;padding:7px 9px;border:1px solid #3d4247;border-radius:0;background:#0f1113;color:#e8eaed;font:13px/1.4 ui-monospace,monospace}
+    #kct-dialog select,#kct-dialog input[type=text],#kct-dialog input.kct-hotkey,#kct-dialog input[type=search],#kct-dialog input[type=number],#kct-dialog textarea{box-sizing:border-box;width:100%;margin-top:8px;padding:7px 9px;border:1px solid #3d4247;border-radius:0;background:#0f1113;color:#e8eaed;font:13px/1.4 ui-monospace,monospace}
     #kct-dialog textarea{min-height:76px;resize:vertical}
+    #kct-dialog input.kct-hotkey{cursor:pointer}
     #kct-dialog input.kct-search{width:100%;margin:0;font:13px/1.4 system-ui,sans-serif;-webkit-appearance:none;appearance:none}
     #kct-dialog .kct-empty{padding:12px 0;color:#9aa0a6}
     #kct-dialog select:focus,#kct-dialog input:focus,#kct-dialog textarea:focus{outline:none;border-color:#53fc18}
@@ -811,6 +815,12 @@
   }
 
   /**
+   * Returns the settings button tooltip including the shortcut.
+   * @returns {string}
+   */
+  const gearTitle = () => (S.shortcut ? `TidyChat settings (${S.shortcut})` : 'TidyChat settings');
+
+  /**
    * Places the settings button in the top bar, or floats it over chat.
    */
   function updateGear() {
@@ -872,6 +882,7 @@
     D = compile(S);
     rowCache = new WeakMap();
     if (dynStyle) dynStyle.textContent = dynamicCss();
+    if (gear) gear.title = gearTitle();
     updatePaused();
     queueApply();
   }
@@ -908,6 +919,17 @@
   }
 
   /**
+   * Turns a key event into a combo string such as "Shift+O".
+   * @param {KeyboardEvent} e
+   * @returns {string}
+   */
+  function combo(e) {
+    if (['Control', 'Alt', 'Shift', 'Meta'].includes(e.key)) return '';
+    const key = e.code.startsWith('Key') ? e.code.slice(3) : e.code.startsWith('Digit') ? e.code.slice(5) : e.code;
+    return [e.ctrlKey && 'Ctrl', e.altKey && 'Alt', e.shiftKey && 'Shift', e.metaKey && 'Meta', key].filter(Boolean).join('+');
+  }
+
+  /**
    * Builds the control for one setting.
    * @param {any} item
    * @returns {HTMLElement}
@@ -927,7 +949,32 @@
     }
     const error = h('div', { className: 'kct-error' });
     let input;
-    if (item.type === 'select') {
+    if (item.type === 'hotkey') {
+      input = h('input', {
+        type: 'text',
+        className: 'kct-hotkey',
+        readOnly: true,
+        value: S[item.key] || 'None',
+        onkeydown: e => {
+          if (e.key === 'Escape' || e.key === 'Tab') return;
+          e.preventDefault();
+          if (e.key === 'Backspace' || e.key === 'Delete') {
+            S[item.key] = '';
+          } else {
+            const c = combo(e);
+            if (!c) return;
+            if (!e.ctrlKey && !e.altKey && !e.shiftKey && !e.metaKey && !/^F\d+$/.test(c)) {
+              error.textContent = 'Use Shift, Ctrl, Alt or a function key.';
+              return;
+            }
+            S[item.key] = c;
+          }
+          error.textContent = '';
+          e.target.value = S[item.key] || 'None';
+          applySettings();
+        }
+      });
+    } else if (item.type === 'select') {
       input = h('select', {
         onchange: e => {
           S[item.key] = e.target.value;
@@ -1019,7 +1066,7 @@
     const dialog = h('div', { id: 'kct-dialog' },
       h('header', {}, h('span', {}, 'TidyChat'), search, h('button', { type: 'button', onclick: closeSettings }, 'Close')),
       h('div', { className: 'kct-body' }, h('nav', {}, ...navButtons), section),
-      h('footer', {}, 'Changes apply and save automatically.', h('button', {
+      h('footer', {}, 'Changes apply and save immediately.', h('button', {
         type: 'button',
         onclick: () => {
           if (!confirm('Reset all TidyChat settings to their defaults?')) return;
@@ -1072,6 +1119,17 @@
   };
 
   /**
+   * Opens settings on the configured shortcut, ignoring keys typed into text fields.
+   * @param {KeyboardEvent} e
+   */
+  function onShortcut(e) {
+    if (!S.shortcut || e.target?.closest?.(EDITABLE) || combo(e) !== S.shortcut) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    if (e.type === 'keydown' && !e.repeat && document.body) openSettings();
+  }
+
+  /**
    * Injects styles, UI elements and event listeners.
    */
   function init() {
@@ -1086,7 +1144,7 @@
         updatePaused();
       }
     });
-    gear = h('button', { id: 'kct-gear', type: 'button', title: 'TidyChat settings (Alt+O)', onclick: openSettings });
+    gear = h('button', { id: 'kct-gear', type: 'button', title: gearTitle(), onclick: openSettings });
     gear.innerHTML = GEAR;
     document.body.append(indicator, gear);
 
@@ -1129,18 +1187,8 @@
     queueApply();
   }
 
-  /**
-   * Opens settings on Alt+K and keeps the key from reaching the player.
-   * @param {KeyboardEvent} e
-   */
-  function onShortcut(e) {
-    if (!e.altKey || e.shiftKey || e.ctrlKey || e.code !== 'KeyO') return;
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    if (e.type === 'keydown' && !e.repeat && document.body) openSettings();
-  }
   for (const type of ['keydown', 'keypress', 'keyup']) window.addEventListener(type, onShortcut, true);
-  
+
   if (document.body) init();
   else document.addEventListener('DOMContentLoaded', init, { once: true });
 })();
