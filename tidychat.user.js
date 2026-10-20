@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TidyChat
 // @namespace    tidychat
-// @version      1.2.3
+// @version      1.2.4
 // @description  Calmer Kick chat: pause on hover, keep deleted messages, ignore clears, hide sub and gift spam, timestamps
 // @license      MIT
 // @homepageURL  https://github.com/MrGoatsy/TidyChat
@@ -1107,11 +1107,6 @@
       updatePaused();
     });
     window.addEventListener('keydown', e => {
-      if (e.altKey && !e.shiftKey && !e.ctrlKey && e.code === 'KeyK') {
-        e.preventDefault();
-        openSettings();
-        return;
-      }
       if (S.pauseKey && e.key === S.pauseKey && !keyDown) {
         keyDown = true;
         updatePaused();
@@ -1134,6 +1129,18 @@
     queueApply();
   }
 
+  /**
+   * Opens settings on Alt+K and keeps the key from reaching the player.
+   * @param {KeyboardEvent} e
+   */
+  function onShortcut(e) {
+    if (!e.altKey || e.shiftKey || e.ctrlKey || e.code !== 'KeyK') return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    if (e.type === 'keydown' && !e.repeat && document.body) openSettings();
+  }
+  for (const type of ['keydown', 'keypress', 'keyup']) window.addEventListener(type, onShortcut, true);
+  
   if (document.body) init();
   else document.addEventListener('DOMContentLoaded', init, { once: true });
 })();
