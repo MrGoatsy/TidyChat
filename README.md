@@ -15,7 +15,7 @@ Makes Kick chat calmer and easier to read: pause it while you read, see deleted 
 
 ## Settings
 
-Click the gear icon in the top bar, or press **Alt+Shift+K** anywhere on Kick. Changes apply right away and are saved in your browser. **Reset to defaults** at the bottom of the panel puts everything back.
+Click the gear icon in the top bar, or press **Alt+Shift+K** anywhere on Kick. Use the search box to find any setting by name. Changes apply right away and are saved in your browser. **Reset to defaults** at the bottom of the panel puts everything back.
 
 ## Features
 
