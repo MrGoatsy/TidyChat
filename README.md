@@ -15,7 +15,7 @@ Calmer, easier to read Kick chat: pause it, keep deleted messages, hide gift and
 
 ## Settings
 
-Click the gear icon in the top bar or press **Alt+K**. Changes save automatically. **Reset to defaults** restores everything.
+Click the gear icon in the top bar or press **Alt+O**. Changes save automatically. **Reset to defaults** restores everything.
 
 ## Features
 
