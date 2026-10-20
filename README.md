@@ -20,49 +20,69 @@ Click the gear icon in the top bar, or press **Alt+Shift+K** anywhere on Kick. U
 ## Features
 
 ### Chat behavior
-- **Pause on hover.** While your mouse is over chat, new messages wait instead of pushing what you're reading out of view. A bar shows how many are waiting; click it to let them through. *On by default.*
-- **Pause while holding a key.** Hold Ctrl (or Alt or Shift) to pause chat from anywhere on the page. *Ctrl by default.*
-- **Maximum held messages.** If too many pile up while paused, they're let through anyway so chat doesn't fall too far behind. *500 by default.*
-- **Do not clear chat.** When a moderator clears chat, you keep seeing it. *On by default.*
+
+| Setting | What it does | Default |
+| --- | --- | --- |
+| Pause on hover | While your mouse is over chat, new messages wait instead of pushing what you're reading out of view. A bar shows how many are waiting; click it to let them through. | Off |
+| Pause while holding a key | Hold Ctrl, Alt or Shift to pause chat from anywhere on the page. | Ctrl |
+| Maximum held messages | If too many pile up while paused, they're let through anyway so chat doesn't fall too far behind. | 500 |
+| Do not clear chat | When a moderator clears chat, you keep seeing it. | On |
 
 ### Deleted messages
-- **Show deleted messages.** Messages removed by moderators stay visible instead of disappearing. *On by default.*
-- **Style.** Choose how they look: faded, crossed out, both, or blurred until you hover over them. *Faded and crossed out by default.*
+
+| Setting | What it does | Default |
+| --- | --- | --- |
+| Show deleted messages | Messages removed by moderators stay visible instead of disappearing. | On |
+| Style | Faded, crossed out, both, or blurred until you hover over them. | Faded and crossed out |
 
 ### Appearance
-- **Timestamps.** A small grey time before every message, using the time the message was actually sent. *On by default.*
-- **24-hour time.** *On by default.*
-- **Show seconds.** *Off by default.*
-- **Settings button.** Show or hide the gear icon. It sits in the top bar and hides in theatre mode. Alt+Shift+K always works. *On by default.*
+
+| Setting | What it does | Default |
+| --- | --- | --- |
+| Timestamps | A small grey time before every message, using the time it was actually sent. | On |
+| 24-hour time | Shows times as 14:05 instead of 2:05 PM. | On |
+| Show seconds | Adds seconds to timestamps. | Off |
+| Settings button | Shows the gear icon in the top bar. It hides in theatre mode; Alt+Shift+K always works. | On |
 
 ### Interface
-- **Hide reward chest.** The animated "Claim Your Reward" button in the top bar. *On by default.*
-- **Hide "Get KICKs" button.** In the top bar. *On by default.*
-- **Hide channel points.** Below the chat box. *On by default.*
-- **Hide Kicks gift shop button.** Below the chat box. *On by default.*
-- **Hide "Chat" button over the player.** The button Kick shows when chat is collapsed. With this on, turn it off again to reopen chat. *On by default.*
-- **Start in theatre mode.** Every channel you open switches to theatre mode. *On by default.*
-- **Start with chat closed.** Every channel you open starts with chat collapsed. *Off by default.*
+
+| Setting | What it does | Default |
+| --- | --- | --- |
+| Hide reward chest | Hides the animated "Claim Your Reward" button in the top bar. | On |
+| Hide "Get KICKs" button | Hides it from the top bar. | On |
+| Hide channel points | Hides them from below the chat box. | On |
+| Hide Kicks gift shop button | Hides it from below the chat box. | On |
+| Hide "Chat" button over the player | Hides the button Kick shows when chat is collapsed. Turn this off again to reopen chat. | On |
+| Start in theatre mode | Every channel you open switches to theatre mode. | On |
+| Start with chat closed | Every channel you open starts with chat collapsed. | Off |
 
 ### Filtering
-- **Hide subscription notices**, including resub messages. *On by default.*
-- **Hide gifted subscription notices.** *On by default.*
-- **Hide Kicks gifts.** *On by default.*
-- **Hidden users.** Never see messages from the people you list, such as bots.
-- **Hidden message patterns.** Hide messages that match your own patterns, for example chat commands starting with `!`.
-- **Hidden chat line patterns.** Hide any line in chat whose visible text matches a pattern, for notices that aren't regular messages.
+
+| Setting | What it does | Default |
+| --- | --- | --- |
+| Hide subscription notices | Hides sub and resub messages. | On |
+| Hide gifted subscription notices | Hides gift sub messages. | On |
+| Hide Kicks gifts | Hides Kicks gift messages. | On |
+| Hidden users | Never see messages from the people you list, such as bots. | Empty |
+| Hidden message patterns | Hides messages matching your own patterns, for example commands starting with `!`. | Empty |
+| Hidden chat line patterns | Hides any chat line whose visible text matches a pattern, for notices that aren't regular messages. | Empty |
 
 Filters also apply to the chat history that loads when you open a channel.
 
 ### Advanced
+
 For when Kick changes its site and something needs adjusting without waiting for an update.
-- **Chat container selector.** Where TidyChat looks for the chat.
-- **Hidden chat line selectors.** Hide chat lines that contain a matching element.
-- **Hidden page elements.** Hide anything else on the page, such as the top gifters bar.
-- **Extra socket events to drop.** Block extra live chat event types by name.
-- **Extra message types to drop.** Block extra chat message types.
-- **Theatre button pattern** and **Close chat button pattern.** How TidyChat finds Kick's theatre and close-chat buttons.
-- **Log socket events to the console.** Shows the name of each kind of live chat event once, so you can find what to block.
+
+| Setting | What it does |
+| --- | --- |
+| Chat container selector | Where TidyChat looks for the chat. |
+| Hidden chat line selectors | Hides chat lines that contain a matching element. |
+| Hidden page elements | Hides anything else on the page, such as the top gifters bar. |
+| Extra socket events to drop | Blocks extra live chat event types by name. |
+| Extra message types to drop | Blocks extra chat message types. |
+| Theatre button pattern | How TidyChat finds Kick's theatre button. |
+| Close chat button pattern | How TidyChat finds Kick's close-chat button. |
+| Log socket events to the console | Shows the name of each kind of live chat event once, so you can find what to block. |
 
 ## Troubleshooting
 
