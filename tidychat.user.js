@@ -4,6 +4,10 @@
 // @version      1.0.0
 // @description  Calmer Kick chat: pause on hover, keep deleted messages, ignore clears, hide sub and gift spam, timestamps
 // @license      MIT
+// @homepageURL  https://github.com/MrGoatsy/TidyChat
+// @supportURL   https://github.com/MrGoatsy/TidyChat/issues
+// @updateURL    https://raw.githubusercontent.com/MrGoatsy/TidyChat/main/tidychat.user.js
+// @downloadURL  https://raw.githubusercontent.com/MrGoatsy/TidyChat/main/tidychat.user.js
 // @match        https://kick.com/*
 // @grant        none
 // @inject-into  page
