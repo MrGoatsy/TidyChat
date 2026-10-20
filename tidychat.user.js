@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TidyChat
 // @namespace    tidychat
-// @version      1.1.0
+// @version      1.2.0
 // @description  Calmer Kick chat: pause on hover, keep deleted messages, ignore clears, hide sub and gift spam, timestamps
 // @license      MIT
 // @homepageURL  https://github.com/MrGoatsy/TidyChat
@@ -142,7 +142,8 @@
     #kct-backdrop{position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55);font:14px/1.4 system-ui,sans-serif;color:#e8eaed}
     #kct-shot{padding:40px;background:transparent}
     #kct-dialog{display:flex;flex-direction:column;width:min(760px,calc(100vw - 112px));height:min(560px,calc(100vh - 112px));background:#191b1f;border:1px solid #2f3337;border-radius:0;box-shadow:0 12px 40px rgba(0,0,0,.6);overflow:hidden}
-    #kct-dialog header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #2f3337;font-weight:700;font-size:15px}
+    #kct-dialog header{display:grid;grid-template-columns:1fr minmax(0,320px) 1fr;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid #2f3337;font-weight:700;font-size:15px}
+    #kct-dialog header > button{justify-self:end}
     #kct-dialog header button,#kct-dialog footer button{border:0;border-radius:0;background:#2f3337;color:#e8eaed;padding:6px 12px;cursor:pointer;font:inherit}
     #kct-dialog header button:hover,#kct-dialog footer button:hover{background:#3d4247}
     #kct-dialog .kct-body{display:flex;flex:1;min-height:0}
@@ -163,7 +164,7 @@
     #kct-dialog input[type=checkbox]:checked::after{transform:translateX(16px)}
     #kct-dialog select,#kct-dialog input[type=text],#kct-dialog input[type=search],#kct-dialog input[type=number],#kct-dialog textarea{box-sizing:border-box;width:100%;margin-top:8px;padding:7px 9px;border:1px solid #3d4247;border-radius:0;background:#0f1113;color:#e8eaed;font:13px/1.4 ui-monospace,monospace}
     #kct-dialog textarea{min-height:76px;resize:vertical}
-    #kct-dialog input.kct-search{margin:0 0 8px;font:13px/1.4 system-ui,sans-serif;-webkit-appearance:none;appearance:none}
+    #kct-dialog input.kct-search{width:100%;margin:0;font:13px/1.4 system-ui,sans-serif;-webkit-appearance:none;appearance:none}
     #kct-dialog .kct-empty{padding:12px 0;color:#9aa0a6}
     #kct-dialog select:focus,#kct-dialog input:focus,#kct-dialog textarea:focus{outline:none;border-color:#53fc18}
     #kct-dialog footer{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-top:1px solid #2f3337;color:#9aa0a6;font-size:12.5px}
@@ -174,6 +175,7 @@
    */
 
   /**
+   * Loads saved settings merged over defaults.
    * @returns {typeof DEFAULTS}
    */
   function loadSettings() {
@@ -184,12 +186,16 @@
     }
   }
 
+  /**
+   * Saves only settings that differ from defaults.
+   */
   function saveSettings() {
     const changed = Object.fromEntries(Object.entries(S).filter(([k, v]) => k in DEFAULTS && v !== DEFAULTS[k]));
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(changed)); } catch {}
   }
 
   /**
+   * Builds a case-insensitive regex, or null if invalid.
    * @param {string} v
    * @returns {RegExp|null}
    */
@@ -198,6 +204,7 @@
   }
 
   /**
+   * Checks whether a CSS selector is valid.
    * @param {string} sel
    * @returns {boolean}
    */
@@ -211,18 +218,21 @@
   }
 
   /**
+   * Splits text into trimmed non-empty lines.
    * @param {string} v
    * @returns {string[]}
    */
   const lines = v => String(v).split('\n').map(x => x.trim()).filter(Boolean);
 
   /**
+   * Splits text into lowercase words on spaces and commas.
    * @param {string} v
    * @returns {string[]}
    */
   const words = v => String(v).split(/[\s,]+/).map(x => x.trim().toLowerCase()).filter(Boolean);
 
   /**
+   * Turns raw settings into ready-to-use filters and formatters.
    * @param {typeof DEFAULTS} s
    */
   function compile(s) {
@@ -281,12 +291,14 @@
   let startupJob = null;
 
   /**
+   * Normalises message text for matching, dropping emote tags.
    * @param {string} s
    * @returns {string}
    */
   const norm = s => s.replace(/\[emote:\d+:[^\]]*\]/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
 
   /**
+   * Logs each new socket event type once when logging is enabled.
    * @param {string} name
    * @param {any} data
    */
@@ -299,7 +311,8 @@
   }
 
   /**
-   * @param {string} name Socket event name or chat message type.
+   * Checks whether an event name or message type is hidden spam.
+   * @param {string} name
    * @returns {boolean}
    */
   function isSpam(name) {
@@ -310,6 +323,7 @@
   }
 
   /**
+   * Checks whether a chat message should be dropped.
    * @param {any} m
    * @returns {boolean}
    */
@@ -323,6 +337,7 @@
   }
 
   /**
+   * Stores a message for timestamp and deletion matching.
    * @param {any} data
    */
   function remember(data) {
@@ -343,6 +358,7 @@
   }
 
   /**
+   * Flags a stored message as deleted.
    * @param {any} data
    */
   function markDeleted(data) {
@@ -353,6 +369,7 @@
   }
 
   /**
+   * Filters, holds or passes a socket frame on to the page.
    * @param {MessageEvent} ev
    * @param {(ev: MessageEvent) => void} deliver
    */
@@ -388,18 +405,17 @@
   const NativeWS = window.WebSocket;
 
   /**
-   * Routes every incoming frame through {@link route} before the page's own handlers see it.
+   * WebSocket that routes incoming frames through the filter first.
    */
   class PatchedWS extends NativeWS {
     /**
+     * Wraps message handlers so frames pass through route.
      * @param {string|URL} url
      * @param {string|string[]} [protocols]
      */
     constructor(url, protocols) {
       super(url, protocols);
-      /** @type {Set<EventListenerOrEventListenerObject>} */
       const handlers = new Set();
-      /** @type {((ev: MessageEvent) => void)|null} */
       let onmsg = null;
       const deliver = ev => {
         if (onmsg) onmsg.call(this, ev);
@@ -421,6 +437,7 @@
   window.WebSocket = PatchedWS;
 
   /**
+   * Checks whether a URL is a chat history request.
    * @param {string|undefined} url
    * @returns {boolean}
    */
@@ -435,7 +452,7 @@
   }
 
   /**
-   * Records history messages for timestamps and deletion matching, and strips hidden ones.
+   * Records history messages and strips hidden ones.
    * @param {any} body
    * @returns {{body: any, changed: boolean}}
    */
@@ -450,6 +467,13 @@
   }
 
   const nativeFetch = window.fetch;
+
+  /**
+   * Fetch wrapper that filters chat history responses.
+   * @param {RequestInfo|URL} input
+   * @param {RequestInit} [init]
+   * @returns {Promise<Response>}
+   */
   window.fetch = async function (input, init) {
     const res = await nativeFetch.call(this, input, init);
     const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input?.url;
@@ -472,12 +496,19 @@
   /** @type {WeakMap<XMLHttpRequest, {text: string, json: any}|null>} */
   const xhrCache = new WeakMap();
 
+  /**
+   * Records the request URL for later history filtering.
+   * @param {string} method
+   * @param {string|URL} url
+   * @param {...any} rest
+   */
   XHR.open = function (method, url, ...rest) {
     xhrUrls.set(this, String(url));
     return nativeOpen.call(this, method, url, ...rest);
   };
 
   /**
+   * Returns the filtered body of a finished history request.
    * @param {XMLHttpRequest} xhr
    * @returns {{text: string, json: any}|null}
    */
@@ -512,6 +543,7 @@
   });
 
   /**
+   * Finds the chat container.
    * @returns {Element|null}
    */
   function chatEl() {
@@ -519,6 +551,7 @@
   }
 
   /**
+   * Lists the rendered chat rows.
    * @returns {Element[]}
    */
   function rows() {
@@ -532,6 +565,7 @@
   }
 
   /**
+   * Checks whether a chat row shows a stored message.
    * @param {Element} row
    * @param {string} text
    * @param {StoredMessage} m
@@ -548,7 +582,7 @@
   }
 
   /**
-   * DOM-level fallback for notices rendered without a filterable socket event.
+   * Checks whether a rendered chat row should be hidden.
    * @param {Element} r
    * @param {string} text
    * @returns {boolean}
@@ -565,8 +599,7 @@
   }
 
   /**
-   * Arrival-time fallback for rows that could not be matched to a socket or history message.
-   * Rows present when the chat first appears get no time; rows only get stamped while chat is at the bottom.
+   * Returns the arrival time for an unmatched row, or null for rows present at load.
    * @param {string} text
    * @param {Element} c
    * @returns {number|null}
@@ -584,6 +617,7 @@
   }
 
   /**
+   * Finds the first page button matching a pattern.
    * @param {RegExp|null} re
    * @returns {HTMLElement|null}
    */
@@ -598,13 +632,13 @@
         b.querySelector('svg[data-ds-icon]')?.getAttribute('data-ds-icon'),
         b.textContent
       ].join(' ');
-      if (re.test(hay)) return /** @type {HTMLElement} */ (b);
+      if (re.test(hay)) return b;
     }
     return null;
   }
 
   /**
-   * Player controls only render after pointer activity over the player.
+   * Simulates pointer activity so the player renders its controls.
    */
   function wakePlayer() {
     let v = null;
@@ -628,7 +662,7 @@
   }
 
   /**
-   * Applies the start-in-theatre and start-with-chat-closed options once per channel navigation.
+   * Applies theatre mode and closed chat once per channel.
    */
   function runStartup() {
     if (location.pathname !== startupPath) {
@@ -668,7 +702,7 @@
   }
 
   /**
-   * Finds the block-level element holding the username line of a chat row, so the timestamp sits before badges and username.
+   * Finds the line element of a chat row that the timestamp goes in front of.
    * @param {Element} r
    * @returns {Element}
    */
@@ -686,6 +720,9 @@
     return el ?? r;
   }
 
+  /**
+   * Applies hiding, deleted styling and timestamps to every chat row.
+   */
   function applyRows() {
     applyQueued = false;
     updateGear();
@@ -696,7 +733,6 @@
       baselineFor = c;
       baselineUntil = Date.now() + 3000;
     }
-    /** @type {StoredMessage[]|null} */
     let recent = null;
     for (const r of rows()) {
       const text = (r.textContent ?? '').replace(/\s+/g, ' ').trim().toLowerCase();
@@ -726,12 +762,18 @@
     }
   }
 
+  /**
+   * Schedules applyRows for the next frame.
+   */
   function queueApply() {
     if (applyQueued) return;
     applyQueued = true;
     requestAnimationFrame(applyRows);
   }
 
+  /**
+   * Delivers all held messages.
+   */
   function release() {
     for (const f of held.splice(0)) {
       try { f(); } catch (e) { console.error('[tidychat]', e); }
@@ -739,6 +781,9 @@
     updateIndicator();
   }
 
+  /**
+   * Updates the paused state and releases messages on resume.
+   */
   function updatePaused() {
     const p = (S.pauseOnHover && hover && !suppressed) || keyDown;
     if (p === paused) return;
@@ -747,6 +792,9 @@
     updateIndicator();
   }
 
+  /**
+   * Shows or hides the paused bar over chat.
+   */
   function updateIndicator() {
     if (!indicator) return;
     const c = chatEl();
@@ -763,7 +811,7 @@
   }
 
   /**
-   * Places the settings button left of "Get KICKs" in the top bar, hides it in theatre mode, and floats it over chat when the top bar is otherwise missing.
+   * Places the settings button in the top bar, or floats it over chat.
    */
   function updateGear() {
     if (!gear) return;
@@ -801,6 +849,7 @@
   }
 
   /**
+   * Builds the CSS that depends on settings.
    * @returns {string}
    */
   function dynamicCss() {
@@ -815,6 +864,9 @@
     return `.kct-deleted,.kct-deleted *{${deleted}}${hover}` + [...ui, ...D.pageSelectors].map(s => `${s}{display:none!important}`).join('');
   }
 
+  /**
+   * Saves settings and reapplies them to the page.
+   */
   function applySettings() {
     saveSettings();
     D = compile(S);
@@ -825,6 +877,7 @@
   }
 
   /**
+   * Creates an element with properties, listeners and children.
    * @param {string} tag
    * @param {Record<string, any>} [props]
    * @param {...(Node|string)} children
@@ -842,6 +895,7 @@
   }
 
   /**
+   * Returns an error message for invalid regex or selector input.
    * @param {any} item
    * @param {string} value
    * @returns {string}
@@ -854,6 +908,7 @@
   }
 
   /**
+   * Builds the control for one setting.
    * @param {any} item
    * @returns {HTMLElement}
    */
@@ -914,11 +969,17 @@
     return h('div', { className: 'kct-field' }, h('div', { className: 'kct-title' }, item.label), desc, input, error);
   }
 
+  /**
+   * Closes the settings dialog.
+   */
   function closeSettings() {
     backdrop?.remove();
     backdrop = null;
   }
 
+  /**
+   * Opens the settings dialog, or closes it if already open.
+   */
   function openSettings() {
     if (backdrop) return closeSettings();
     const section = h('section');
@@ -956,8 +1017,8 @@
     };
     CATEGORIES.forEach((c, i) => navButtons.push(h('button', { type: 'button', onclick: () => show(i) }, c.label)));
     const dialog = h('div', { id: 'kct-dialog' },
-      h('header', {}, 'TidyChat', h('button', { type: 'button', onclick: closeSettings }, 'Close')),
-      h('div', { className: 'kct-body' }, h('nav', {}, search, ...navButtons), section),
+      h('header', {}, h('span', {}, 'TidyChat'), search, h('button', { type: 'button', onclick: closeSettings }, 'Close')),
+      h('div', { className: 'kct-body' }, h('nav', {}, ...navButtons), section),
       h('footer', {}, 'Changes apply and save immediately.', h('button', {
         type: 'button',
         onclick: () => {
@@ -992,7 +1053,7 @@
   }
 
   /**
-   * Console diagnostic: run tidyDebug() on a channel page.
+   * Prints chat matching diagnostics to the console.
    */
   window.tidyDebug = () => {
     const list = rows();
@@ -1010,6 +1071,9 @@
     console.log('last stored:', [...store.values()].slice(-3));
   };
 
+  /**
+   * Injects styles, UI elements and event listeners.
+   */
   function init() {
     document.head.appendChild(h('style', { textContent: STYLE }));
     dynStyle = h('style', { textContent: dynamicCss() });
@@ -1027,8 +1091,7 @@
     document.body.append(indicator, gear);
 
     document.addEventListener('mouseover', e => {
-      const t = /** @type {Element} */ (e.target);
-      hover = !!t.closest?.(`${S.chatSelector}, #kct-pause`);
+      hover = !!e.target.closest?.(`${S.chatSelector}, #kct-pause`);
       if (!hover) suppressed = false;
       updatePaused();
     }, true);
