@@ -136,7 +136,8 @@
     #kct-gear.kct-gear-nav:hover{background:rgba(255,255,255,.1)}
     #kct-gear.kct-gear-nav svg{width:20px;height:20px}
     #kct-backdrop{position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55);font:14px/1.4 system-ui,sans-serif;color:#e8eaed}
-    #kct-dialog{display:flex;flex-direction:column;width:min(760px,calc(100vw - 32px));height:min(560px,calc(100vh - 32px));background:#191b1f;border:1px solid #2f3337;border-radius:0;box-shadow:0 12px 40px rgba(0,0,0,.6);overflow:hidden}
+    #kct-shot{padding:40px;background:transparent}
+    #kct-dialog{display:flex;flex-direction:column;width:min(760px,calc(100vw - 112px));height:min(560px,calc(100vh - 112px));background:#191b1f;border:1px solid #2f3337;border-radius:0;box-shadow:0 12px 40px rgba(0,0,0,.6);overflow:hidden}
     #kct-dialog header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #2f3337;font-weight:700;font-size:15px}
     #kct-dialog header button,#kct-dialog footer button{border:0;border-radius:0;background:#2f3337;color:#e8eaed;padding:6px 12px;cursor:pointer;font:inherit}
     #kct-dialog header button:hover,#kct-dialog footer button:hover{background:#3d4247}
@@ -938,8 +939,8 @@
     );
     backdrop = h('div', {
       id: 'kct-backdrop',
-      onmousedown: e => { if (e.target === backdrop) closeSettings(); }
-    }, dialog);
+      onmousedown: e => { if (e.target === backdrop || e.target.id === 'kct-shot') closeSettings(); }
+    }, h('div', { id: 'kct-shot' }, dialog));
     for (const type of ['keydown', 'keyup', 'keypress']) {
       backdrop.addEventListener(type, e => {
         if (type === 'keydown' && e.key === 'Escape') closeSettings();
