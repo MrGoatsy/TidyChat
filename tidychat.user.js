@@ -76,7 +76,7 @@
         { key: 'timestamps', type: 'bool', label: 'Show timestamps' },
         { key: 'timestamp24h', type: 'bool', label: '24-hour time' },
         { key: 'timestampSeconds', type: 'bool', label: 'Show seconds' },
-        { key: 'showButton', type: 'bool', label: 'Show settings button', desc: 'Shown in the top bar, or over chat when the top bar is hidden. Alt+Shift+K always opens this dialog.' }
+        { key: 'showButton', type: 'bool', label: 'Show settings button', desc: 'Shown in the top bar, or over chat when the top bar is hidden. Alt+K always opens this dialog.' }
       ]
     },
     {
@@ -1086,7 +1086,7 @@
         updatePaused();
       }
     });
-    gear = h('button', { id: 'kct-gear', type: 'button', title: 'TidyChat settings (Alt+Shift+K)', onclick: openSettings });
+    gear = h('button', { id: 'kct-gear', type: 'button', title: 'TidyChat settings (Alt+K)', onclick: openSettings });
     gear.innerHTML = GEAR;
     document.body.append(indicator, gear);
 
@@ -1107,7 +1107,7 @@
       updatePaused();
     });
     window.addEventListener('keydown', e => {
-      if (e.altKey && e.shiftKey && e.code === 'KeyK') {
+      if (e.altKey && !e.shiftKey && !e.ctrlKey && e.code === 'KeyK') {
         e.preventDefault();
         openSettings();
         return;
