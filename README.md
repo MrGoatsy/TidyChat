@@ -15,7 +15,7 @@ Calmer, easier to read Kick chat: pause it, keep deleted messages, hide gift and
 
 ## Settings
 
-Click the gear icon in the top bar or press **Alt+O**. Changes save automatically. **Reset to defaults** restores everything.
+Click the gear icon in the top bar or press **Shift+O**. The shortcut can be changed under Appearance. Changes save automatically. **Reset to defaults** restores everything.
 
 ## Features
 
@@ -43,6 +43,7 @@ Click the gear icon in the top bar or press **Alt+O**. Changes save automaticall
 | 24-hour time | 14:05 instead of 2:05 PM. | On |
 | Show seconds | Adds seconds to timestamps. | Off |
 | Settings button | Shows the gear icon in the top bar. Hidden in theatre mode. | On |
+| Settings shortcut | Key combination that opens settings. | Shift+O |
 
 ### Interface
 
