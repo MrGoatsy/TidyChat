@@ -5,7 +5,7 @@ Makes Kick chat calmer and easier to read: pause it while you read, see deleted 
 ## Install
 
 1. Install a userscript manager: [Violentmonkey](https://violentmonkey.github.io/).
-2. Open [tidychat.user.js](tidychat.user.js) and click **Raw**. Your userscript manager will offer to install it.
+2. [Click here to install TidyChat](https://raw.githubusercontent.com/MrGoatsy/TidyChat/main/tidychat.user.js). Your userscript manager will open an install page.
 3. Reload kick.com.
 
 ## Settings
