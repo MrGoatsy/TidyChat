@@ -3,7 +3,7 @@
 Calmer, easier to read Kick chat: pause it, keep deleted messages, hide gift and sub spam.
 
 <p align="center">
-  <img width="500" height="381" alt="image" src="https://github.com/user-attachments/assets/1152c5f0-0866-49a4-9d7f-263731d78d51" />
+  <img width="500" height="381" alt="image" src="https://github.com/user-attachments/assets/4b19b2cd-a6db-435d-bfff-9304b7b6b78a" />
 </p>
 
 
@@ -43,7 +43,7 @@ Click the gear icon in the top bar or press **Shift+O**. The shortcut can be cha
 | 24-hour time | 14:05 instead of 2:05 PM. | On |
 | Show seconds | Adds seconds to timestamps. | Off |
 | Settings button | Shows the gear icon in the top bar. Hidden in theatre mode. | On |
-| Settings shortcut | Key combination that opens settings. | Shift+O |
+| Settings shortcut | Key combination that opens settings. Ignored while typing in chat. | Shift+O |
 
 ### Interface
 
@@ -54,6 +54,7 @@ Click the gear icon in the top bar or press **Shift+O**. The shortcut can be cha
 | Hide channel points | Hides channel points below the chat box. | On |
 | Hide Kicks gift shop button | Hides the gift shop button below the chat box. | On |
 | Hide "Chat" button over the player | Hides the button that reopens collapsed chat. | On |
+| Only hide "Chat" button in theatre mode | Keeps the button outside theatre mode. | On |
 | Start in theatre mode | Opens every channel in theatre mode. | On |
 | Start with chat closed | Opens every channel with chat collapsed. | Off |
 
@@ -95,7 +96,7 @@ Run `tidyDebug()` in the browser console on a channel page to see how many chat 
 
 ## Also by the author
 
-[Poltergeist](https://poltergeist.cc/) gives your moderators live control of your stream overlay, with no shared passwords or remote access to your PC.
+[Poltergeist](https://poltergeist.cc/mod-controlled-overlay) gives your moderators live control of your stream overlay, with no shared passwords or remote access to your PC.
 
 ## License
 
