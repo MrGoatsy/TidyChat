@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TidyChat
 // @namespace    tidychat
-// @version      1.2.6
+// @version      1.2.7
 // @description  Calmer Kick chat: pause on hover, keep deleted messages, ignore clears, hide sub and gift spam, timestamps
 // @license      MIT
 // @homepageURL  https://github.com/MrGoatsy/TidyChat
@@ -37,6 +37,7 @@
     hideChannelPoints: true,
     hideGiftShop: true,
     hideOpenChat: true,
+    openChatOnlyTheatre: true,
     startTheatre: true,
     startChatClosed: false,
     theatreButtonPattern: 'theat(re|er)',
@@ -88,7 +89,8 @@
         { key: 'hideGetKicks', type: 'bool', label: 'Hide "Get KICKs" button', desc: 'In the top bar.' },
         { key: 'hideChannelPoints', type: 'bool', label: 'Hide channel points', desc: 'Below the chat input.' },
         { key: 'hideGiftShop', type: 'bool', label: 'Hide Kicks gift shop button', desc: 'Below the chat input.' },
-        { key: 'hideOpenChat', type: 'bool', label: 'Hide "Chat" button over the player', desc: 'Shown by Kick when chat is collapsed. With this on, collapsed chat can only be reopened by turning this off.' },
+        { key: 'hideOpenChat', type: 'bool', label: 'Hide "Chat" button over the player', desc: 'Shown by Kick when chat is collapsed.' },
+        { key: 'openChatOnlyTheatre', type: 'bool', label: 'Only hide "Chat" button in theatre mode', desc: 'Keeps the button outside theatre mode so collapsed chat can be reopened.' },
         { key: 'startTheatre', type: 'bool', label: 'Start in theatre mode', desc: 'Applied once each time a channel opens.' },
         { key: 'startChatClosed', type: 'bool', label: 'Start with chat closed', desc: 'Applied once each time a channel opens.' }
       ]
@@ -870,7 +872,10 @@
       blur: 'filter:blur(4px)'
     }[S.deletedStyle] ?? 'opacity:.5';
     const hover = S.deletedStyle === 'blur' ? '.kct-deleted:hover,.kct-deleted:hover *{filter:none}' : '';
-    const ui = Object.entries(INTERFACE_SELECTORS).flatMap(([k, sels]) => (S[k] ? sels : []));
+    const ui = Object.entries(INTERFACE_SELECTORS).flatMap(([k, sels]) => {
+      if (!S[k]) return [];
+      return k === 'hideOpenChat' && S.openChatOnlyTheatre ? sels.map(s => `[data-theatre="true"] ${s}`) : sels;
+    });
     return `.kct-deleted,.kct-deleted *{${deleted}}${hover}` + [...ui, ...D.pageSelectors].map(s => `${s}{display:none!important}`).join('');
   }
 
