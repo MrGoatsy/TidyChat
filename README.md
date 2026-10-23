@@ -3,7 +3,7 @@
 Calmer, easier to read Kick chat: pause it, keep deleted messages, hide gift and sub spam.
 
 <p align="center">
-  <img width="500" height="381" alt="image" src="https://github.com/user-attachments/assets/4b19b2cd-a6db-435d-bfff-9304b7b6b78a" />
+  <img width="500" height="381" alt="image" src="https://github.com/user-attachments/assets/f76a3362-7b4d-43d5-9d21-c406642f69b9" />
 </p>
 
 
