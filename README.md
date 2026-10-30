@@ -3,9 +3,8 @@
 Various improvements for Kick.
 
 <p align="center">
-  <img width="500" height="381" alt="image" src="https://github.com/user-attachments/assets/f76a3362-7b4d-43d5-9d21-c406642f69b9" />
+  <img width="500" height="381" alt="image" src="https://github.com/user-attachments/assets/75e1f0a0-ec46-4e8d-a8af-661f84b2cf01" />
 </p>
-
 
 ## Install
 
