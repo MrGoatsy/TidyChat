@@ -1,6 +1,6 @@
 # TidyChat
 
-Calmer, easier to read Kick chat: pause it, keep deleted messages, hide gift and sub spam.
+Various improvements for Kick.
 
 <p align="center">
   <img width="500" height="381" alt="image" src="https://github.com/user-attachments/assets/f76a3362-7b4d-43d5-9d21-c406642f69b9" />
@@ -15,7 +15,7 @@ Calmer, easier to read Kick chat: pause it, keep deleted messages, hide gift and
 
 ## Settings
 
-Click the gear icon in the top bar or press **Shift+O**. The shortcut can be changed under Appearance. Changes save automatically. **Reset to defaults** restores everything.
+Click the gear icon in the top bar or press **Shift+O**. The shortcut can be changed under Appearance. Changes save automatically. **Export** and **Import** save and load your settings as a file. **Reset to defaults** restores everything.
 
 ## Features
 
@@ -42,6 +42,9 @@ Click the gear icon in the top bar or press **Shift+O**. The shortcut can be cha
 | Timestamps | Shows the send time before each message. | On |
 | 24-hour time | 14:05 instead of 2:05 PM. | On |
 | Show seconds | Adds seconds to timestamps. | Off |
+| Alternate chat line colours | Gives every other chat line a different background. | On |
+| First line colour | Background of the first line in each pair. | Black |
+| Second line colour | Background of the second line in each pair. | Dark grey |
 | Settings button | Shows the gear icon in the top bar. Hidden in theatre mode. | On |
 | Settings shortcut | Key combination that opens settings. Ignored while typing in chat. | Shift+O |
 
