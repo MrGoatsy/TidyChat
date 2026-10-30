@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TidyChat
 // @namespace    tidychat
-// @version      1.2.7
+// @version      1.2.8
 // @description  Calmer Kick chat: pause on hover, keep deleted messages, ignore clears, hide sub and gift spam, timestamps
 // @license      MIT
 // @homepageURL  https://github.com/MrGoatsy/TidyChat
@@ -30,6 +30,9 @@
     timestamps: true,
     timestamp24h: true,
     timestampSeconds: false,
+    altRows: true,
+    rowColorA: '#000000',
+    rowColorB: '#16181b',
     showButton: true,
     shortcut: 'Shift+O',
     hideRewards: true,
@@ -78,6 +81,9 @@
         { key: 'timestamps', type: 'bool', label: 'Show timestamps' },
         { key: 'timestamp24h', type: 'bool', label: '24-hour time' },
         { key: 'timestampSeconds', type: 'bool', label: 'Show seconds' },
+        { key: 'altRows', type: 'bool', label: 'Alternate chat line colours' },
+        { key: 'rowColorA', type: 'color', label: 'First line colour' },
+        { key: 'rowColorB', type: 'color', label: 'Second line colour' },
         { key: 'showButton', type: 'bool', label: 'Show settings button', desc: 'Shown in the top bar, or over chat when the top bar is hidden.' },
         { key: 'shortcut', type: 'hotkey', label: 'Settings shortcut', desc: 'Click the box and press a key combination. Ignored while typing in chat. Backspace clears it.' }
       ]
@@ -169,11 +175,13 @@
     #kct-dialog input[type=checkbox]:checked::after{transform:translateX(16px)}
     #kct-dialog select,#kct-dialog input[type=text],#kct-dialog input.kct-hotkey,#kct-dialog input[type=search],#kct-dialog input[type=number],#kct-dialog textarea{box-sizing:border-box;width:100%;margin-top:8px;padding:7px 9px;border:1px solid #3d4247;border-radius:0;background:#0f1113;color:#e8eaed;font:13px/1.4 ui-monospace,monospace}
     #kct-dialog textarea{min-height:76px;resize:vertical}
+    #kct-dialog input[type=color]{display:block;width:60px;height:30px;margin-top:8px;padding:2px;border:1px solid #3d4247;border-radius:0;background:#0f1113;cursor:pointer}
     #kct-dialog input.kct-hotkey{cursor:pointer}
     #kct-dialog input.kct-search{width:100%;margin:0;font:13px/1.4 system-ui,sans-serif;-webkit-appearance:none;appearance:none}
     #kct-dialog .kct-empty{padding:12px 0;color:#9aa0a6}
     #kct-dialog select:focus,#kct-dialog input:focus,#kct-dialog textarea:focus{outline:none;border-color:#53fc18}
     #kct-dialog footer{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-top:1px solid #2f3337;color:#9aa0a6;font-size:12.5px}
+    #kct-dialog footer .kct-actions{display:flex;gap:8px}
   `;
 
   /**
@@ -727,7 +735,7 @@
   }
 
   /**
-   * Applies hiding, deleted styling and timestamps to every chat row.
+   * Applies hiding, deleted styling, line colours and timestamps to every chat row.
    */
   function applyRows() {
     applyQueued = false;
@@ -740,7 +748,12 @@
       baselineUntil = Date.now() + 3000;
     }
     let recent = null;
+    let n = 0;
     for (const r of rows()) {
+      const idx = Number(r.getAttribute('data-index'));
+      const alt = String((Number.isNaN(idx) ? n : idx) % 2);
+      n++;
+      if (r.getAttribute('data-kct-alt') !== alt) r.setAttribute('data-kct-alt', alt);
       const text = (r.textContent ?? '').replace(/\s+/g, ' ').trim().toLowerCase();
       let entry = rowCache.get(r);
       if (!entry || entry.text !== text || !entry.m) {
@@ -872,11 +885,12 @@
       blur: 'filter:blur(4px)'
     }[S.deletedStyle] ?? 'opacity:.5';
     const hover = S.deletedStyle === 'blur' ? '.kct-deleted:hover,.kct-deleted:hover *{filter:none}' : '';
+    const alt = S.altRows ? `[data-kct-alt="0"]{background:${S.rowColorA}}[data-kct-alt="1"]{background:${S.rowColorB}}` : '';
     const ui = Object.entries(INTERFACE_SELECTORS).flatMap(([k, sels]) => {
       if (!S[k]) return [];
       return k === 'hideOpenChat' && S.openChatOnlyTheatre ? sels.map(s => `[data-theatre="true"] ${s}`) : sels;
     });
-    return `.kct-deleted,.kct-deleted *{${deleted}}${hover}` + [...ui, ...D.pageSelectors].map(s => `${s}{display:none!important}`).join('');
+    return `.kct-deleted,.kct-deleted *{${deleted}}${hover}${alt}` + [...ui, ...D.pageSelectors].map(s => `${s}{display:none!important}`).join('');
   }
 
   /**
@@ -979,6 +993,15 @@
           applySettings();
         }
       });
+    } else if (item.type === 'color') {
+      input = h('input', {
+        type: 'color',
+        value: S[item.key],
+        oninput: e => {
+          S[item.key] = e.target.value;
+          applySettings();
+        }
+      });
     } else if (item.type === 'select') {
       input = h('select', {
         onchange: e => {
@@ -1019,6 +1042,41 @@
       error.textContent = validate(item, S[item.key]);
     }
     return h('div', { className: 'kct-field' }, h('div', { className: 'kct-title' }, item.label), desc, input, error);
+  }
+
+  /**
+   * Downloads the current settings as a JSON file.
+   */
+  function exportSettings() {
+    const a = h('a', { href: URL.createObjectURL(new Blob([JSON.stringify(S, null, 2)], { type: 'application/json' })), download: 'tidychat-settings.json' });
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+
+  /**
+   * Loads settings from a JSON file picked by the user.
+   */
+  function importSettings() {
+    const input = h('input', { type: 'file', accept: '.json,application/json' });
+    input.addEventListener('change', async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+      try {
+        const data = JSON.parse(await file.text());
+        if (!data || typeof data !== 'object' || Array.isArray(data)) throw new Error('invalid');
+        const valid = Object.fromEntries(Object.entries(data).filter(([k, v]) => k in DEFAULTS && typeof v === typeof DEFAULTS[k]));
+        if (!Object.keys(valid).length) throw new Error('empty');
+        S = { ...DEFAULTS, ...valid };
+        applySettings();
+        closeSettings();
+        openSettings();
+      } catch {
+        alert('That file is not a valid TidyChat settings file.');
+      }
+    });
+    input.click();
   }
 
   /**
@@ -1071,16 +1129,20 @@
     const dialog = h('div', { id: 'kct-dialog' },
       h('header', {}, h('span', {}, 'TidyChat'), search, h('button', { type: 'button', onclick: closeSettings }, 'Close')),
       h('div', { className: 'kct-body' }, h('nav', {}, ...navButtons), section),
-      h('footer', {}, 'Changes apply and save immediately.', h('button', {
-        type: 'button',
-        onclick: () => {
-          if (!confirm('Reset all TidyChat settings to their defaults?')) return;
-          S = { ...DEFAULTS };
-          applySettings();
-          closeSettings();
-          openSettings();
-        }
-      }, 'Reset to defaults'))
+      h('footer', {}, 'Changes apply and save immediately.', h('div', { className: 'kct-actions' },
+        h('button', { type: 'button', onclick: exportSettings }, 'Export'),
+        h('button', { type: 'button', onclick: importSettings }, 'Import'),
+        h('button', {
+          type: 'button',
+          onclick: () => {
+            if (!confirm('Reset all TidyChat settings to their defaults?')) return;
+            S = { ...DEFAULTS };
+            applySettings();
+            closeSettings();
+            openSettings();
+          }
+        }, 'Reset to defaults')
+      ))
     );
     backdrop = h('div', {
       id: 'kct-backdrop',
