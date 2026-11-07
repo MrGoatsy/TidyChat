@@ -59,6 +59,7 @@ Click the gear icon in the top bar or press **Shift+O**. The shortcut can be cha
 | Only hide "Chat" button in theatre mode | Keeps the button outside theatre mode. | On |
 | Start in theatre mode | Opens every channel in theatre mode. | On |
 | Start with chat closed | Opens every channel with chat collapsed. | Off |
+| Hide recommended channels | Hides the Recommended section in the sidebar. | On |
 
 ### Filtering
 
