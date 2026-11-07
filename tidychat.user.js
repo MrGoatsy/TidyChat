@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TidyChat
 // @namespace    tidychat
-// @version      1.2.8
+// @version      1.2.9
 // @description  Calmer Kick chat: pause on hover, keep deleted messages, ignore clears, hide sub and gift spam, timestamps
 // @license      MIT
 // @homepageURL  https://github.com/MrGoatsy/TidyChat
@@ -39,6 +39,7 @@
     hideGetKicks: true,
     hideChannelPoints: true,
     hideGiftShop: true,
+    hideRecommended: true,
     hideOpenChat: true,
     openChatOnlyTheatre: true,
     startTheatre: true,
@@ -95,6 +96,7 @@
         { key: 'hideGetKicks', type: 'bool', label: 'Hide "Get KICKs" button', desc: 'In the top bar.' },
         { key: 'hideChannelPoints', type: 'bool', label: 'Hide channel points', desc: 'Below the chat input.' },
         { key: 'hideGiftShop', type: 'bool', label: 'Hide Kicks gift shop button', desc: 'Below the chat input.' },
+        { key: 'hideRecommended', type: 'bool', label: 'Hide recommended channels', desc: 'The Recommended section in the sidebar.' },
         { key: 'hideOpenChat', type: 'bool', label: 'Hide "Chat" button over the player', desc: 'Shown by Kick when chat is collapsed.' },
         { key: 'openChatOnlyTheatre', type: 'bool', label: 'Only hide "Chat" button in theatre mode', desc: 'Keeps the button outside theatre mode so collapsed chat can be reopened.' },
         { key: 'startTheatre', type: 'bool', label: 'Start in theatre mode', desc: 'Applied once each time a channel opens.' },
@@ -132,6 +134,7 @@
     hideGetKicks: ['[data-testid="kicks-top-nav"]'],
     hideChannelPoints: ['[data-testid="channel-points-button"]'],
     hideGiftShop: ['[data-testid="gift-shop-button"]'],
+    hideRecommended: ['section:has([data-testid^="sidebar-recommended-channel"])', 'div:has(> [data-testid="sidebar-show-more-recommended-to-browse"])'],
     hideOpenChat: ['.z-controls button:has(svg[data-ds-icon="MessagesOutline"])']
   };
   const GEAR_ANCHOR = '[data-testid="kicks-top-nav"]';
