@@ -60,7 +60,8 @@ Click the gear icon in the top bar or press **Shift+O**. The shortcut can be cha
 | Start in theatre mode | Opens every channel in theatre mode. | On |
 | Start with chat closed | Opens every channel with chat collapsed. | Off |
 | Hide recommended channels | Hides the Recommended section in the sidebar. | On |
-| Hide "More videos" section | Hides the list of other videos below a VOD. | On |
+| Hide channel info in theatre mode | Hides the streamer name, title and follow buttons below the player. | On |
+| Hide "More videos" in theatre mode | Hides the list of other videos below the player. | On |
 
 ### Filtering
 
