@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TidyChat
 // @namespace    tidychat
-// @version      1.2.10
+// @version      1.2.11
 // @description  Calmer Kick chat: pause on hover, keep deleted messages, ignore clears, hide sub and gift spam, timestamps
 // @license      MIT
 // @homepageURL  https://github.com/MrGoatsy/TidyChat
@@ -40,6 +40,7 @@
     hideChannelPoints: true,
     hideGiftShop: true,
     hideRecommended: true,
+    hideChannelInfo: true,
     hideMoreVideos: true,
     hideOpenChat: true,
     openChatOnlyTheatre: true,
@@ -98,7 +99,8 @@
         { key: 'hideChannelPoints', type: 'bool', label: 'Hide channel points', desc: 'Below the chat input.' },
         { key: 'hideGiftShop', type: 'bool', label: 'Hide Kicks gift shop button', desc: 'Below the chat input.' },
         { key: 'hideRecommended', type: 'bool', label: 'Hide recommended channels', desc: 'The Recommended section in the sidebar.' },
-        { key: 'hideMoreVideos', type: 'bool', label: 'Hide "More videos" section', desc: 'The list of other videos below a VOD.' },
+        { key: 'hideChannelInfo', type: 'bool', label: 'Hide channel info in theatre mode', desc: 'The streamer name, title and follow buttons below the player.' },
+        { key: 'hideMoreVideos', type: 'bool', label: 'Hide "More videos" in theatre mode', desc: 'The list of other videos below the player.' },
         { key: 'hideOpenChat', type: 'bool', label: 'Hide "Chat" button over the player', desc: 'Shown by Kick when chat is collapsed.' },
         { key: 'openChatOnlyTheatre', type: 'bool', label: 'Only hide "Chat" button in theatre mode', desc: 'Keeps the button outside theatre mode so collapsed chat can be reopened.' },
         { key: 'startTheatre', type: 'bool', label: 'Start in theatre mode', desc: 'Applied once each time a channel opens.' },
@@ -137,9 +139,11 @@
     hideChannelPoints: ['[data-testid="channel-points-button"]'],
     hideGiftShop: ['[data-testid="gift-shop-button"]'],
     hideRecommended: ['section:has([data-testid^="sidebar-recommended-channel"])', 'div:has(> [data-testid="sidebar-show-more-recommended-to-browse"])'],
+    hideChannelInfo: ['div:has(> div > div > div > [data-testid="channel-username"])'],
     hideMoreVideos: ['div:has(> h2 > a[href]):has(> section > [data-testid="vods-card"])'],
     hideOpenChat: ['.z-controls button:has(svg[data-ds-icon="MessagesOutline"])']
   };
+  const THEATRE_ONLY = new Set(['hideChannelInfo', 'hideMoreVideos']);
   const GEAR_ANCHOR = '[data-testid="kicks-top-nav"]';
   const KICKS_ROW = '[data-ds-icon^="Kicks"], img[src*="/kicks/"]';
   const GIFT_TEXT = /\bgift(ed|s)?\b/;
@@ -894,6 +898,7 @@
     const alt = S.altRows ? `[data-kct-alt="0"]{background:${S.rowColorA}}[data-kct-alt="1"]{background:${S.rowColorB}}` : '';
     const ui = Object.entries(INTERFACE_SELECTORS).flatMap(([k, sels]) => {
       if (!S[k]) return [];
+      if (THEATRE_ONLY.has(k)) return sels.map(s => `body:has([data-theatre="true"]) ${s}`);
       return k === 'hideOpenChat' && S.openChatOnlyTheatre ? sels.map(s => `[data-theatre="true"] ${s}`) : sels;
     });
     return `.kct-deleted,.kct-deleted *{${deleted}}${hover}${alt}` + [...ui, ...D.pageSelectors].map(s => `${s}{display:none!important}`).join('');
